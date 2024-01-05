@@ -1,21 +1,21 @@
 pvp_choice = {}
 
--- Function to remove all arrow objects attached to a player
-local function remove_attached_arrows(player)
+-- Function to remove nearby mcl_bows:arrow_entity around a player
+local function remove_nearby_arrows(player, radius)
     if not player or not player:is_player() then
         return
     end
 
-    -- Get objects within a small radius around the player
-    local nearby_objects = minetest.get_objects_inside_radius(player:get_pos(), 5)
-    for _, obj in ipairs(nearby_objects) do
+    local pos = player:get_pos()
+    local radius = radius or 5 -- default radius of 5 units
+
+    -- Get all objects within the radius
+    local objects = minetest.get_objects_inside_radius(pos, radius)
+    for _, obj in ipairs(objects) do
         local luaentity = obj:get_luaentity()
-        -- Check if the object is an arrow entity
+        -- Check if the object is the specific arrow entity
         if luaentity and luaentity.name == "mcl_bows:arrow_entity" then
-            -- Check if the arrow is attached to the player
-            if obj:get_attach() == player then
-                obj:remove() -- Remove the arrow
-            end
+            obj:remove() -- Remove the arrow entity
         end
     end
 end
@@ -89,7 +89,7 @@ if minetest.get_modpath("mcl_inventory") then
             if obj and obj:is_player() and reason.source and reason.source:is_player() then
                 -- Check PvP settings for both players
                 if not is_pvp_enabled(obj) or not is_pvp_enabled(reason.source) then
-                    remove_attached_arrows(obj)  -- Remove attached arrows to the player
+                    remove_nearby_arrows(obj, 5)  -- Remove attached arrows to the player
                     mcl_hunger.stop_poison(obj) -- Stop poisoning the player
                     mcl_potions._reset_player_effects(obj) -- Remove all potion effects from the player
                     mcl_burning.extinguish(obj) -- Extinguish the player if they are on fire
