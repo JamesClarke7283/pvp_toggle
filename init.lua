@@ -67,7 +67,8 @@ if minetest.get_modpath("mcl_inventory") then
                 -- Check PvP settings for both players
                 if not is_pvp_enabled(obj) or not is_pvp_enabled(reason.source) then
                     if minetest.get_modpath("mcl_burning") then
-                        mcl_burning.extinguish(obj)  -- Extinguish the player if they are on fire
+                        mcl_burning.extinguish(obj)
+                        mcl_burning.extinguish(reason.source)  -- Extinguish the player if they are on fire
                     end
                     return 0 -- No damage if PvP is disabled for either player
                 end
