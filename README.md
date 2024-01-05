@@ -19,8 +19,6 @@ PVP Choice empowers players with the ability to toggle Player vs Player (PVP) in
 
 ## License
 
-This project is under the GPLv3-or-later license. For more information, see the `LICENSE` file.
+This project is under the GPLv3-or-later license. For more information, see the [LICENSE](./LICENSE) file.
 
 ---
-
-T
