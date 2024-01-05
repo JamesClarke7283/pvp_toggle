@@ -41,6 +41,9 @@ minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch, 
 
     -- Check if PvP is disabled for either player
     if player_pvp_setting == "false" or hitter_pvp_setting == "false" then
+        if minetest.get_modpath("mcl_burning") then
+            mcl_burning.extinguish(player)  -- Extinguish the player if they are on fire
+        end
         return true  -- Cancel the punch event
     end
 end)
