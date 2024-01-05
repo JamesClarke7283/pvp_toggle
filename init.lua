@@ -31,6 +31,11 @@ minetest.register_chatcommand("toggle_pvp", {
 
 -- Register the on punch player event
 minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch, tool_capabilities, dir, damage)
+    -- Check if both player and hitter are valid and are players
+    if not player or not hitter or not player:is_player() or not hitter:is_player() then
+        return
+    end
+
     local player_pvp_setting = player:get_meta():get_string("pvp_enabled")
     local hitter_pvp_setting = hitter:get_meta():get_string("pvp_enabled")
 
@@ -39,6 +44,7 @@ minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch, 
         return true  -- Cancel the punch event
     end
 end)
+
 
 -- Initialize PvP setting for each player as they join
 minetest.register_on_joinplayer(function(player)
