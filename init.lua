@@ -1,5 +1,25 @@
 pvp_choice = {}
-pvp_choice.extinguish = {}
+
+-- Function to remove nearby mcl_bows:arrow_entity around a player
+local function remove_nearby_arrows(player, radius)
+    if not player or not player:is_player() then
+        return
+    end
+
+    local pos = player:get_pos()
+    local radius = radius or 5 -- default radius of 5 units
+
+    -- Get all objects within the radius
+    local objects = minetest.get_objects_inside_radius(pos, radius)
+    for _, obj in ipairs(objects) do
+        local luaentity = obj:get_luaentity()
+        -- Check if the object is the specific arrow entity
+        if luaentity and luaentity.name == "mcl_bows:arrow_entity" then
+            obj:remove() -- Remove the arrow entity
+        end
+    end
+end
+
 
 -- Function to toggle PvP for a player
 local function toggle_pvp(player)
@@ -69,8 +89,8 @@ if minetest.get_modpath("mcl_inventory") then
             (reason.type == "arrow" or reason.type == "fireball") then
                 -- Check PvP settings for both players
                 if not is_pvp_enabled(obj) or not is_pvp_enabled(reason.source) then
-                    mcl_potions._extinguish_nearby_fire(obj:get_pos(),4)
-                    table.insert(pvp_choice.extinguish, obj:get_player_name())
+                    remove_nearby_arrows(obj, 5)  -- Remove nearby arrows within 5 units
+                    mcl_burning.extinguish(obj)
                     return 0 -- No damage if PvP is disabled for either player
                 end
             end
@@ -107,34 +127,3 @@ if minetest.get_modpath("mcl_inventory") then
 else
     minetest.log("error", "[PvP Mod] mcl_inventory modpath not found. PvP tab not registered.")
 end
-
-minetest.register_globalstep(function(dtime)
-    if minetest.get_modpath("mcl_burning") then
-        -- Temporary table to track players who are no longer burning
-        local not_burning = {}
-
-        -- Loop over each player name in pvp_choice.extinguish
-        for _, player_name in ipairs(pvp_choice.extinguish) do
-            local player = minetest.get_player_by_name(player_name)
-            if player then
-                -- Extinguish the player
-                mcl_burning.extinguish(player)
-
-                -- Check if the player is still burning
-                if not mcl_burning.is_burning(player) then
-                    table.insert(not_burning, player_name)
-                end
-            end
-        end
-
-        -- Remove players who are no longer burning from pvp_choice.extinguish
-        for _, player_name in ipairs(not_burning) do
-            for i, name in ipairs(pvp_choice.extinguish) do
-                if name == player_name then
-                    table.remove(pvp_choice.extinguish, i)
-                    break
-                end
-            end
-        end
-    end
-end)
