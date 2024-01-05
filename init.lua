@@ -52,8 +52,9 @@ if minetest.get_modpath("mcl_inventory") then
         -- Override the damage handling function
         local original_damage_function = mcl_damage.run_modifiers
         mcl_damage.run_modifiers = function(obj, damage, reason)
-            -- Check if the damage is caused by a projectile and both entities involved are players
-            if (reason.type == "arrow" or reason.type == "fireball") and obj:is_player() and reason.source and reason.source:is_player() then
+            -- Check if obj and reason.source are valid and if the damage is caused by a projectile
+            if obj and obj:is_player() and reason.source and reason.source:is_player() and 
+            (reason.type == "arrow" or reason.type == "fireball") then
                 -- Check PvP settings for both players
                 if not is_pvp_enabled(obj) or not is_pvp_enabled(reason.source) then
                     return 0 -- No damage if PvP is disabled for either player
@@ -63,6 +64,7 @@ if minetest.get_modpath("mcl_inventory") then
             -- Call the original damage function for all other cases
             return original_damage_function(obj, damage, reason)
         end
+
     minetest.log("action", "[PvP Mod] mcl_inventory modpath found. Registering PvP tab.")
     
     mcl_inventory.register_survival_inventory_tab({
