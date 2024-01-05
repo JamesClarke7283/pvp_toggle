@@ -69,6 +69,7 @@ if minetest.get_modpath("mcl_inventory") then
             (reason.type == "arrow" or reason.type == "fireball") then
                 -- Check PvP settings for both players
                 if not is_pvp_enabled(obj) or not is_pvp_enabled(reason.source) then
+                    mcl_potions._extinguish_nearby_fire(obj:get_pos(),4)
                     table.insert(pvp_choice.extinguish, obj:get_player_name())
                     return 0 -- No damage if PvP is disabled for either player
                 end
