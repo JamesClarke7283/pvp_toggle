@@ -66,9 +66,10 @@ if minetest.get_modpath("mcl_inventory") then
             (reason.type == "arrow" or reason.type == "fireball") then
                 -- Check PvP settings for both players
                 if not is_pvp_enabled(obj) or not is_pvp_enabled(reason.source) then
-                    if minetest.get_modpath("mcl_burning") then
+                    if minetest.get_modpath("mcl_burning") and minetest.get_modpath("mcl_potions") then
                         mcl_burning.set_on_fire(obj, 0)
                         mcl_burning.extinguish(obj)
+                        mcl_potions.fire_resistance_func(obj, 0, 20)
                     end
                     return 0 -- No damage if PvP is disabled for either player
                 end
