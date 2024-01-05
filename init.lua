@@ -1,3 +1,6 @@
+pvp_choice = {}
+pvp_choice.extinguish = {}
+
 -- Function to toggle PvP for a player
 local function toggle_pvp(player)
     local pvp_setting = player:get_meta():get_string("pvp_enabled")
@@ -66,11 +69,7 @@ if minetest.get_modpath("mcl_inventory") then
             (reason.type == "arrow" or reason.type == "fireball") then
                 -- Check PvP settings for both players
                 if not is_pvp_enabled(obj) or not is_pvp_enabled(reason.source) then
-                    if minetest.get_modpath("mcl_burning") and minetest.get_modpath("mcl_potions") then
-                        mcl_burning.set_on_fire(obj, 0)
-                        mcl_burning.extinguish(obj)
-                        mcl_potions.fire_resistance_func(obj, 0, 20)
-                    end
+                    table.insert(pvp_choice.extinguish, obj:get_player_name())
                     return 0 -- No damage if PvP is disabled for either player
                 end
             end
@@ -108,3 +107,33 @@ else
     minetest.log("error", "[PvP Mod] mcl_inventory modpath not found. PvP tab not registered.")
 end
 
+minetest.register_globalstep(function(dtime)
+    if minetest.get_modpath("mcl_burning") then
+        -- Temporary table to track players who are no longer burning
+        local not_burning = {}
+
+        -- Loop over each player name in pvp_choice.extinguish
+        for _, player_name in ipairs(pvp_choice.extinguish) do
+            local player = minetest.get_player_by_name(player_name)
+            if player then
+                -- Extinguish the player
+                mcl_burning.extinguish(player)
+
+                -- Check if the player is still burning
+                if not mcl_burning.is_burning(player) then
+                    table.insert(not_burning, player_name)
+                end
+            end
+        end
+
+        -- Remove players who are no longer burning from pvp_choice.extinguish
+        for _, player_name in ipairs(not_burning) do
+            for i, name in ipairs(pvp_choice.extinguish) do
+                if name == player_name then
+                    table.remove(pvp_choice.extinguish, i)
+                    break
+                end
+            end
+        end
+    end
+end)
